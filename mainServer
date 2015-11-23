@@ -1,0 +1,70 @@
+import java.util.*;
+import java.net.*;
+import java.io.*;
+public class mainServer {
+
+	public static void main(String[] args){
+		int port = 4444;
+		try{
+			//Create the server socket
+			ServerSocket server = new ServerSocket(port);
+			System.out.println("Server has started...");
+			while(true){
+				Socket client = server.accept();
+				System.out.println("Client has been accepted...");
+				//Start class that holds the clients in threads
+				if(client!= null){
+					//prompt that a connection has been made to a client
+					ClientJail clients = new ClientJail(client);
+					//class.start()
+					clients.start();
+					//while(client.isAlive()){}
+				}
+			}
+		}catch(IOException e){
+			System.out.println(e);
+		}
+	}
+}
+
+class ClientJail extends Thread{
+	private Socket connectedClient;
+	private BufferedReader fromClient;
+	private BufferedWriter toClient;
+	
+	public ClientJail(Socket client){
+		this.connectedClient = client;
+	}
+	
+	public void run(){
+		try{
+			//open input stream to read data from client
+			fromClient = new BufferedReader(new InputStreamReader(connectedClient.getInputStream()));
+			
+			//open output stream to send data to client
+			toClient = new BufferedWriter(new OutputStreamWriter(connectedClient.getOutputStream()));
+			while(true){
+				if(fromClient.readLine().equalsIgnoreCase("Hamming")){
+					//do hamming
+					toClient.write("no code available");
+					toClient.flush();
+				}
+				else if(fromClient.readLine().equalsIgnoreCase("FIX")){
+					//start FIX protocol
+					toClient.write("no code available");
+					toClient.flush();
+				} else if(fromClient.readLine().equalsIgnoreCase("Bye")){
+					fromClient.close();
+					toClient.close();
+					break;
+				} else {
+					System.out.println(fromClient.readLine());
+					toClient.write(fromClient.readLine());
+					toClient.flush();
+				}
+			}
+		}catch(Exception e){
+			System.out.println("Unable to connect with the Client!" + e);
+		}
+	}
+}
