@@ -1,0 +1,30 @@
+import java.util.*;
+import java.net.*;
+import java.io.*;
+public class mainClient {
+
+	public static void main(String[] args){
+		try{
+			//Create client
+			int port = 4444;
+			Socket clientSocket = new Socket("localhost", port);
+			System.out.println("Found a host to communicate with...");
+			//Open communication streams and keyboard
+			Scanner input = new Scanner(System.in);
+			BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+			while (true){
+				out.write(input.nextLine());
+				out.flush();
+				input.reset();
+				String line = in.readLine();
+					System.out.println(line);
+				
+			}
+		}catch(UnknownHostException e){
+			System.err.println(e);
+		}catch(IOException e){
+			System.err.println(e);
+		}
+	}
+}
